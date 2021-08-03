@@ -1,0 +1,100 @@
+---
+title: "Evolució socis i contractes de la Garrotxa - R"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(readr)
+library(tidyverse)
+library(kableExtra)
+```
+
+El grup local de la Garrotxa ens demana saber quina evolució han tingut per veure si les activitats de sensibilització que han fet el darrer any han tingut el seu efecte. L’Equip de Cultura Energètica ha rebut aquesta inquietud i li demana a l'Equip d'IT que munti un petit script per mostrar aquesta evolució i detectar els punts en la història amb major i menor creixement.
+
+## Inspecció de les dades
+
+Extreurem les dades necessàries del portal d'[Open Data](https://opendata.somenergia.coop/ui/) de Som Energia.
+
+### Àmbit territorial
+
+Llegint la [documentació](https://opendata.somenergia.coop/docs) de l'API del portal d'[Open Data](https://opendata.somenergia.coop/ui/) veiem que en principi existeix la unitat territorial 'localgroup'. Si bé al portal UI està deshabilitada sí que apareix a la documentació. Amb la crida /discover/geolevel/localgroup descobrim però que no hi ha l'entitat 'Garrotxa'. D'aquesta manra utilitzarem l'àmbit territorial municipal per obtenir les dades. Ens cal doncs, primer de tot, saber quins municipis conformen tota la Garrotxa. A l'[IDESCAT mateix](https://www.idescat.cat/codis/?id=50&n=10&c=19) podem trobar-los amb el codi corresponent, el mateix que fa servir la API de Som Energia.
+
+### Selecció de les mètriques
+
+Amb la crida /discover/metrics podem veure totes les mètriques disponibles. De moment farem servir socis i contractes (members, newmembers, canceledmembers, contracts, newcontracts, canceledcontracts. El grup local de la Garrotxa vol l'evolució de l'últim any però nosaltres hi inclourem el 2019 perquè el 2020 ha estat un any molt poc representatiu per la pandèmia i segurament això ha tingut un impacte en les dades que ens demanen.
+
+Identificarem el procés d'importació i transformació necessari per a deixar les dades tal com les necessitem.
+
+## Importem les dades
+
+Confeccionem el link de la crida HTTP seguint les indicacions de la documentació indicant la mètrica que volem i tots els municipis de la Garrotxa.
+Importem cada mètric per serparat amb la URL generada i ho adjuntem tot en un sol dataset.
+
+```{r echo=TRUE, message=FALSE, warning=FALSE}
+members_municipis_garrotxa <- read_delim("https://opendata.somenergia.coop/v0.2/members/by/city/monthly/from/2019-01-01/to/2021-08-01?city=17010&city=17019&city=17021&city=17046&city=17098&city=17105&city=17109&city=17114&city=17133&city=17139&city=17149&city=17154&city=17183&city=17161&city=17162&city=17165&city=17185&city=17184&city=17200&city=17207&city=17208&format=tsv", "\t", escape_double = FALSE, trim_ws = TRUE) %>% mutate(metric = 'members')
+
+newmembers_municipis_garrotxa <- read_delim("https://opendata.somenergia.coop/v0.2/newmembers/by/city/monthly/from/2019-01-01/to/2021-08-01?city=17010&city=17019&city=17021&city=17046&city=17098&city=17105&city=17109&city=17114&city=17133&city=17139&city=17149&city=17154&city=17183&city=17161&city=17162&city=17165&city=17185&city=17184&city=17200&city=17207&city=17208&format=tsv", "\t", escape_double = FALSE, trim_ws = TRUE) %>% mutate(metric = 'newmembers')
+
+canceledmembers_municipis_garrotxa <- read_delim("https://opendata.somenergia.coop/v0.2/canceledmembers/by/city/monthly/from/2019-01-01/to/2021-08-01?city=17010&city=17019&city=17021&city=17046&city=17098&city=17105&city=17109&city=17114&city=17133&city=17139&city=17149&city=17154&city=17183&city=17161&city=17162&city=17165&city=17185&city=17184&city=17200&city=17207&city=17208&format=tsv", "\t", escape_double = FALSE, trim_ws = TRUE) %>% mutate(metric = 'canceledmembers')
+
+contracts_municipis_garrotxa <- read_delim("https://opendata.somenergia.coop/v0.2/contracts/by/city/monthly/from/2019-01-01/to/2021-08-01?city=17010&city=17019&city=17021&city=17046&city=17098&city=17105&city=17109&city=17114&city=17133&city=17139&city=17149&city=17154&city=17183&city=17161&city=17162&city=17165&city=17185&city=17184&city=17200&city=17207&city=17208&format=tsv", "\t", escape_double = FALSE, trim_ws = TRUE) %>% mutate(metric = 'contracts')
+
+newcontracts_municipis_garrotxa <- read_delim("https://opendata.somenergia.coop/v0.2/newcontracts/by/city/monthly/from/2019-01-01/to/2021-08-01?city=17010&city=17019&city=17021&city=17046&city=17098&city=17105&city=17109&city=17114&city=17133&city=17139&city=17149&city=17154&city=17183&city=17161&city=17162&city=17165&city=17185&city=17184&city=17200&city=17207&city=17208&format=tsv", "\t", escape_double = FALSE, trim_ws = TRUE) %>% mutate(metric = 'newcontracts')
+
+canceledcontracts_municipis_garrotxa <- read_delim("https://opendata.somenergia.coop/v0.2/canceledcontracts/by/city/monthly/from/2019-01-01/to/2021-08-01?city=17010&city=17019&city=17021&city=17046&city=17098&city=17105&city=17109&city=17114&city=17133&city=17139&city=17149&city=17154&city=17183&city=17161&city=17162&city=17165&city=17185&city=17184&city=17200&city=17207&city=17208&format=tsv", "\t", escape_double = FALSE, trim_ws = TRUE) %>% mutate(metric = 'canceledcontracts')
+
+garrotxa <- members_municipis_garrotxa %>% 
+  bind_rows(newmembers_municipis_garrotxa) %>% 
+  bind_rows(canceledmembers_municipis_garrotxa) %>% 
+  bind_rows(contracts_municipis_garrotxa) %>% 
+  bind_rows(newcontracts_municipis_garrotxa) %>% 
+  bind_rows(canceledcontracts_municipis_garrotxa)
+
+
+# presentem la taula de socis com a exemple.
+kbl(head(garrotxa)) %>% 
+    kable_paper() %>%
+    scroll_box(width = "500px", height = "200px")
+```
+
+## Transformem les dades
+
+Necessitem fer dos grans canvis: passar a dades llargues i agregar per comarca. Així, transformem les columnes que porten per nom la data a només dues columnes; una amb la data i l'altra amb el valor. Un cop fet això agregguem sumant els valors per comarca, data i tipus de mètrica.
+
+```{r echo=TRUE, message=FALSE, warning=FALSE}
+garrotxa.long <- garrotxa %>% 
+  pivot_longer(9:40, names_to = "mes", values_to = "valor") %>% 
+  mutate(comarca = 'Garrotxa', mes = as.Date(mes)) %>% 
+  group_by(comarca, mes, metric) %>% 
+  summarise(valor = sum(valor))
+
+# presentem la taula
+kbl(head(members_municipis_garrotxa)) %>% 
+    kable_paper() %>%
+    scroll_box(width = "500px", height = "200px")
+```
+
+
+## Visió general
+
+Fem un graficat senzill de totes les mètriques per tenir una idea general.
+
+```{r echo=TRUE, message=FALSE, warning=FALSE}
+garrotxa.long %>%
+  ggplot( aes(y=valor, x=mes)) +
+  geom_area( fill="#69b3a2", alpha=0.4) +
+  geom_line(color="#69b3a2", size=2) +
+  geom_point(size=3, color="#69b3a2") +
+  facet_wrap(~metric, scales = 'free') +
+  theme(plot.title = element_text(hjust = 0.5, face = 'bold'), plot.subtitle = element_text(hjust = 0.5)) +
+  labs(title = "Evolució de contractes i socis de Som Energia a la Garrotxa",
+       subtitle = 'Dades a partir de 2019',
+       caption = 'Font: API Som Energia | @rogersanjaume') +
+  xlab('Mes') +
+  ylab('Nombre absolut') +
+  # scale_x_continuous(breaks = seq(2019, 2021, by = 3)) +
+  theme(legend.position = "none")
+```
+
+Veiem per socis i contractes que hi ha una tendència general molt positiiva els últims dos anys amb un creixement mínim d'un 50%. També veiem l'impacte de la pandèmmia que atura els nous contractes i socis entre 2020 i principis del 2021. És un any atípic per treure conclusions d'actes de difusió potser.

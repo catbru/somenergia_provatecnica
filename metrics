@@ -1,0 +1,105 @@
+metrics:
+- id: members
+  text: Sòcies
+  description: "Persones sòcies de la cooperativa a l'inici de la data donada \n\n\
+    Les sòcies es calculen de l'estat actual del nostre ERP, per això, cal tenir en\
+    \ compte que:\n- Els primers mesos de la cooperativa, les altes s'anotaven en\
+    \ un full de càlcul, però, figura com data d'alta quan es varen passar a l'ERP.\n\
+    - No hi ha registre històric de les adreces d'una sòcia. Per això, si una sòcia\
+    \ canvia el seu domicili de Vigo a Cartagena, compta com que ha estat vivint sempre\
+    \ a Cartagena.\n- Només guardem una data de alta per sòcia. No queda ben registrat\
+    \ si una sòcia es dona de baixa i es torna a donar-se d'alta.\n"
+- id: newmembers
+  text: Noves sòcies
+  description: 'Noves sòcies durant el mes que acaba a la data donada.
+
+
+    S''apliquen les mateixes consideracions que per a la mètrica "Sòcies".
+
+    '
+- id: canceledmembers
+  text: Baixes de sòcies
+  description: 'Sòcies que varen abandonar la cooperativa durant el mes abans de la
+    data donada.
+
+
+    S''apliquen les mateixes consideracions que per a la mètrica "Sòcies".
+
+    '
+- id: contracts
+  text: Contractes
+  description: 'Els contractes actius a l''inici de la data donada.
+
+
+    Les dades del contracte s''obtenen de les dades d''activació i desactivacíó del
+    sistema ATR.
+
+    Els contractes antics van ser transferits a mà dels fitxers i poden ser menys
+    confiables.
+
+    '
+- id: newcontracts
+  text: Nous contractes
+  description: 'Contractes activats durant el mes anterior a la data donada.
+
+
+    S''apliquen les mateixes consideracions que per a la mètrica "Contractes".
+
+    '
+- id: canceledcontracts
+  text: Baixes de contractes
+  description: 'Contractes donats de baixa durant el mes anterior a la data donada.
+
+
+    S''apliquen les mateixes consideracions que per a la mètrica "Contractes".
+
+    '
+- id: selfconsumptioncontracts
+  text: Contractes amb autoconsum
+  description: 'Contractes actius amb autoconsum just abans de la data
+
+
+    Consideracions:
+
+
+    - Aquesta mètrica s''obté de les dades del sistema ATR.
+
+    - Un cop un contracte activa l''autoconsum, el considerem autoconsum fins que
+    es dona de baixa.
+
+    Podria se que es desactivés l''autoconsum abans i no ho estem considerant.
+
+    '
+- id: newselfconsumptioncontracts
+  text: Nous contractes d'autoconsum
+  description: 'Contractes que han activat l''autoconsum durant el mes anterior a
+    la data donada.
+
+
+    S''apliquen les mateixes consideracions que per a la mètrica "Contractes d''autoconsum".
+
+    '
+- id: canceledselfconsumptioncontracts
+  text: Baixes de contractes d'autoconsum
+  description: 'Contractes d''autoconsum donats de baixa durant el mes anterior a
+    la data donada.
+
+
+    S''apliquen les mateixes consideracions que per a la mètrica "Contractes d''autoconsum".
+
+    '
+- id: plantpower
+  text: Potencia instal·lada en plantes (MW)
+  description: 'Suma de la potència de pic de les plantes instalades en la regió just
+    abans de la data.
+
+
+    Aquesta mètrica és experimental. Les dades encara no son fiables.'
+- id: plantproduction
+  text: Energia produïda en plantes (kWh)
+  description: 'Energia que les plantes de la regió varen injectar a la xarxa durant
+    el període just abans a la data.
+
+
+    Les dades fins a 2020 es prenen dels nostres registres històrics. Les dades a
+    partir de 2021 es calculen directament de les lectures del comptador.'
